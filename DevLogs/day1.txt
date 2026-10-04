@@ -1,0 +1,5 @@
+This is just a dev log, It can provide proof i thought the architectre through instead of just copy pasting from ai
+The current issue is that i first have to actually get the list of songs, The solution i am thinking through 
+is a provider provides me those info and all the searching thing and my sources provide me the actual song 
+
+I am just using the source's search api to get the actual music 
