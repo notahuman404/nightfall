@@ -1,0 +1,5 @@
+Today i am going to a autocomplete 
+
+decided not to add autocomplete as it is kinda hard and idk where to start instead i will add the search 
+query thing for all the sources where i search a query and get a song back, simple but effective 
+I will tackle the autocomplete at the last as it doesnt offer much return 

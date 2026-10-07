@@ -3,3 +3,5 @@ The current issue is that i first have to actually get the list of songs, The so
 is a provider provides me those info and all the searching thing and my sources provide me the actual song 
 
 I am just using the source's search api to get the actual music 
+
+Decided to use audius for basic feed at the start, search would be a thing of later 

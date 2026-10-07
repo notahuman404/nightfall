@@ -1,29 +1,73 @@
-import pickle 
 import json
-class Store:
-    def __init__(self):
-        pass  # No need to store the function as an instance attribute
+import asyncio 
+from datetime import datetime, timedelta
+from typing import Optional
+from utility import Song, client, normalize_audius, AUDIUS_TOKEN
 
-    def store(self, obj, name):
+#remove the below line later 
+from utility import store, load
 
-        
-        with open(f"/workspaces/nightfall/variables/{name}.pkl", "wb") as f:
-            pickle.dump(obj, f)
+REFRESH_DAYS = timedelta(days = 1)
+suggestions = {}
 
-    def load(self, varname):
-        with open(f"/workspaces/nightfall/variables/{varname}.pkl", "rb") as f:
-            return pickle.load(f)
+async def trending():
+    res = await client.get(
+        "https://api.audius.co/v1/tracks/recommended?limit=40",
+        headers={
+          "Authorization": f"Bearer {AUDIUS_TOKEN}"
+        }
+    )  
+    return res.json()['data']
 
-store = Store()
-# import http.client
+async def resonating():
+    
+    res = await client.get(
+        "https://api.audius.co/v1/tracks/most-shared?limit=40",
+        headers={
+          "Authorization": f"Bearer {AUDIUS_TOKEN}"
+            }
+        )
+    return res.json()['data']
 
-# conn = http.client.HTTPSConnection("api.audius.co")
 
-# headers = { 'Authorization': "Bearer YOUR_SECRET_TOKEN" }
+async def try_out():
+    res = await client.get(
+        "https://api.audius.co/v1/tracks/feeling-lucky?limit=20",
+        headers={
+          "Authorization": f"Bearer {AUDIUS_TOKEN}"
+        }
+    )
+    res = res.json()['data']
+    tasks = [normalize_audius(song) for song in res]
 
-# conn.request("GET", "/v1/tracks/recommended", headers=headers)
+    res = asyncio.gather(*tasks)
+    return res
 
-# res = conn.getresponse()
-# data = res.read()
-data = json.loads(store.load( "data"))
-print(((list(data.values())[0])[0]).keys())
+async def get_songs():
+    to = await try_out()
+    nonlocal suggestions
+
+    if not suggestions:
+        tr = await trending()
+        reson = await resonating()
+        suggestions = {
+            "last_updated": datetime.now(),
+            "trending":     tr,
+            "try_out":      to,
+            "resonating":        reson,
+        }
+
+    elif suggestion['last_updated'] - datetime.now() >= REFRESH_DAYS:
+        tr = await trending()
+        reson = await resonating()
+        suggestions = {
+            "last_updated": datetime.now(),
+            "trending":     tr,
+            "try_out":      to,
+            "resonating":        reson,
+        }
+    
+    else :
+        suggestions['try_out'] = to
+
+    return suggestions
